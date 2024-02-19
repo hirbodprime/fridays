@@ -119,6 +119,9 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = '../friday_media/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # Adjust the path to where your static files are.
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '../friday_media/media/'
