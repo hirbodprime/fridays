@@ -14,9 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bfqec&ywobgio#g#7h3%-pbc0zr5j(lip-bg1*5fx+ad3n4zab'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DEBUG")
-if os.getenv("DEBUG") == True:
-    ALLOWED_HOSTS = ["*"]
+DEBUG = bool(os.getenv("DEBUG"))
+
+if DEBUG == True:
+
+    ALLOWED_HOSTS = ["*","127.0.0.1"]
 else:
     ALLOWED_HOSTS = ["hirbots.com","www.hirbots.com"]
 
@@ -119,9 +121,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = '../friday_media/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),  # Adjust the path to where your static files are.
-]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = '../friday_media/media/'

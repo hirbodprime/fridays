@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.hashers import make_password
-from .models import CustomUser
+from .models import CustomUser, InvitationCode
 
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = ['username', 'full_name', 'is_staff', 'is_active']
@@ -19,4 +19,5 @@ class CustomUserAdmin(admin.ModelAdmin):
             obj.password = make_password(obj.password)
         super().save_model(request, obj, form, change)
 
+admin.site.register(InvitationCode)
 admin.site.register(CustomUser, CustomUserAdmin)
