@@ -20,8 +20,18 @@ class LoginView(APIView):
         password = request.data.get("password")
         user = authenticate(request, username=username, password=password)
         if user:
+            user = User.objects.get(
+            username=username,
+            )
+            user_data = {
+                "username": user.username,
+                "full_name": user.full_name,
+                "join_date": user.join_date,
+                "profile_image": request.build_absolute_uri(user.profile_image.url) if user.profile_image else None,
+                "premium": user.premium
+            }
             token, created = Token.objects.get_or_create(user=user)
-            return Response({"token": token.key}, status=status.HTTP_200_OK)
+            return Response({"token": token.key,'user_data':user_data}, status=status.HTTP_200_OK)
         return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
