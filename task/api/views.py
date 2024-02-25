@@ -26,7 +26,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if not user.premium:
             return Response({"error": "Only premium users can create tasks."}, status=status.HTTP_403_FORBIDDEN)
         
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             task = serializer.save(created_by=user)
             # If 'assign_all' is in request, assign all users to the task
@@ -36,6 +36,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
     def get_queryset(self):
         user = self.request.user
