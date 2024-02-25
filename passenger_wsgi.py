@@ -1,0 +1,1 @@
+from fridays.wsgi import application
