@@ -1,7 +1,18 @@
 from rest_framework import serializers
 from members.models import Class, Attendance
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'full_name','profile_image']  # Adjust fields as needed for the user
+
+# Modify the AttendanceSerializer to include user data
 class AttendanceSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)  # Nest UserSerializer for the user field
+
     class Meta:
         model = Attendance
         fields = ['user', 'status', 'timestamp']  # Adjust fields as needed
