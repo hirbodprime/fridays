@@ -9,7 +9,8 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from account.models import InvitationCode  # Import the InvitationCode model
-from .serializers import UserUpdateSerializer, UserProfileSerializer
+from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer
+from members.models import Wallet
 
 
 User = get_user_model()
@@ -24,6 +25,7 @@ class LoginView(APIView):
             username=username,
             )
             user_data = {
+                "id": user.id,
                 "username": user.username,
                 "full_name": user.full_name,
                 "join_date": user.join_date,
@@ -64,6 +66,7 @@ class SignupView(APIView):
             # Add additional fields here
         )
         user_data = {
+            "id": user.id,
             "username": user.username,
             "full_name": user.full_name,
             "join_date": user.join_date,
@@ -115,4 +118,21 @@ class UserProfileAPIView(APIView):
     def get(self, request, username, *args, **kwargs):
         user = get_object_or_404(User, username=username)
         serializer = UserProfileSerializer(user)
-        return Response(serializer.data)
+        response_data = {
+            'user_data':serializer.data
+        }
+        return Response(response_data)
+
+
+
+
+
+class WalletAPIView(APIView):
+    def get(self, request, user_id):
+        user = get_object_or_404(get_user_model(), pk=user_id)
+        wallet = get_object_or_404(Wallet, user=user)
+        serializer = WalletSerializer(wallet)
+        response_data = {
+            'user_data':serializer.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from members.models import Wallet
+
 
 User = get_user_model()
 
@@ -16,4 +18,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'full_name', 'profile_image', 'join_date', 'premium']
+        fields = ['id','username', 'full_name', 'profile_image', 'join_date', 'premium']
+
+
+
+class WalletSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wallet
+        fields = ['user', 'balance']
