@@ -14,12 +14,7 @@ from .serializers import ClassSerializer, AttendanceSerializer
 
 class ClassViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ClassSerializer
-
-    def get_queryset(self):
-        today = timezone.now().date()
-        start_week = today - datetime.timedelta(days=today.weekday())
-        end_week = start_week + datetime.timedelta(days=6)
-        return Class.objects.filter(date__range=(start_week, end_week))
+    queryset = Class.objects.all()
 
 class ToggleAttendanceView(APIView):
     permission_classes = [IsAuthenticated]

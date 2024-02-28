@@ -13,12 +13,12 @@ class Class(models.Model):
     def __str__(self):
         return self.title
 
-    @property
-    def is_this_week(self):
-        today = timezone.now().date()
-        start_week = today - datetime.timedelta(days=today.weekday())
-        end_week = start_week + datetime.timedelta(days=6)
-        return start_week <= self.date <= end_week
+    # @property
+    # def is_this_week(self):
+    #     today = timezone.now().date()
+    #     start_week = today - datetime.timedelta(days=today.weekday())
+    #     end_week = start_week + datetime.timedelta(days=6)
+    #     return start_week <= self.date <= end_week
 
     class Meta:
         verbose_name_plural = "classes"
