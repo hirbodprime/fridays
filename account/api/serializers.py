@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from members.models import Wallet
+from members.models import Wallet, PaymentImage
 
 
 User = get_user_model()
@@ -26,3 +26,8 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = ['user', 'balance']
+        
+class PaymentImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentImage
+        fields = ['id', 'image', 'amount', 'created_at']

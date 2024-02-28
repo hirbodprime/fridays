@@ -4,13 +4,14 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import CreateAPIView
 from django.shortcuts import get_object_or_404
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from account.models import InvitationCode  # Import the InvitationCode model
-from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer
-from members.models import Wallet
+from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer, PaymentImageSerializer
+from members.models import Wallet, PaymentImage
 
 
 User = get_user_model()
@@ -126,8 +127,14 @@ class UserProfileAPIView(APIView):
 
 
 
+class PaymentImageView(CreateAPIView):
+    queryset = PaymentImage.objects.all()
+    serializer_class = PaymentImageSerializer
+    permission_classes = [IsAuthenticated]  # Optional, adjust according to your security requirements
 
 class WalletAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, user_id):
         user = get_object_or_404(get_user_model(), pk=user_id)
         wallet = get_object_or_404(Wallet, user=user)

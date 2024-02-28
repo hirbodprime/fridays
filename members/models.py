@@ -57,3 +57,12 @@ class Wallet(models.Model):
             raise ValueError('Insufficient balance to subtract.')
         self.balance -= amount
         self.save()
+
+
+class PaymentImage(models.Model):
+    image = models.ImageField(upload_to='payment_images/')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Payment of {self.amount} made on {self.created_at}"
