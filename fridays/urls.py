@@ -8,4 +8,6 @@ urlpatterns = [
     path('account/',include('account.urls')),
     path('task/',include('task.urls')),
     path('members/',include('members.urls')),
+    path('quommento/',include('comment.urls')),
+    path('upload/',include('upload.urls')),
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
 
     # project apps
     'account',
+    'upload',
+    'comment',
     'task',
     'members'
 ]
@@ -102,6 +104,14 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+HOST = os.getenv("HOST")
+BASE_URL = 'http://127.0.0.1:8000'  # Default value
+
+if HOST == 'local':
+    BASE_URL = 'http://127.0.0.1:8000'
+elif HOST == 'pro':
+    BASE_URL = 'https://hirbots.com/fridays'
 
 
 # Internationalization

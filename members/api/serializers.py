@@ -23,7 +23,7 @@ class ClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Class
-        fields = ['title', 'description', 'date', 'charge_amount', 'is_available_this_week', 'image', 'present_attendees']
+        fields = ['id','title', 'description', 'date', 'charge_amount', 'is_available_this_week', 'image', 'present_attendees','finished']
 
     def get_present_attendees(self, obj):
         # Filter attendees marked as 'present' for this class

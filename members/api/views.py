@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 from rest_framework import status
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -11,10 +12,43 @@ from members.models import Class, Attendance, Wallet
 # Make sure to import Wallet model if you're using it for charging/refunding
 
 from .serializers import ClassSerializer, AttendanceSerializer
+class AttendedClassesListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = ClassSerializer
+
+    def get_queryset(self):
+        """
+        Override the get_queryset method to return only the classes
+        that the current user has attended.
+        """
+        user = self.request.user
+        attended_classes_ids = Attendance.objects.filter(user=user, status='present').values_list('class_attended', flat=True)
+        return Class.objects.filter(id__in=attended_classes_ids, finished=True)
+
+class ClassHistoryListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = ClassSerializer
+
+    def get_queryset(self):
+        """
+        Override the get_queryset method to return only the classes
+        that are finished.
+        """
+        return Class.objects.filter(finished=True)
 
 class ClassViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+
     serializer_class = ClassSerializer
-    queryset = Class.objects.all()
+
+    def get_queryset(self):
+        """
+        Override the get_queryset method to return only the classes
+        that are not finished.
+        """
+        return Class.objects.filter(finished=False)
 
 class ToggleAttendanceView(APIView):
     permission_classes = [IsAuthenticated]
