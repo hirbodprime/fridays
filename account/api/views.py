@@ -10,11 +10,33 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 from account.models import InvitationCode  # Import the InvitationCode model
-from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer, PaymentImageSerializer
+from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer, PaymentImageSerializer, ProfilePictureSerializer
 from members.models import Wallet, PaymentImage
 
 
 User = get_user_model()
+
+
+class UploadProfilePicture(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        user = request.user  # Assuming the user is authenticated
+        profile_image = request.data.get('profile_image')
+
+        if not profile_image:
+            return Response({'error': 'No profile image provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update user's profile image
+        user.profile_image = profile_image
+        user.save()
+
+        # Serialize the updated profile image and return the response
+        serializer = ProfilePictureSerializer(user)
+        return Response(serializer.data)
+
+    def get(self, request, format=None):
+        return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 class LoginView(APIView):
     def post(self, request, *args, **kwargs):
