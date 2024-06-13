@@ -52,7 +52,20 @@ class ClassViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ToggleAttendanceView(APIView):
     permission_classes = [IsAuthenticated]
+    def get(self, request, pk, format=None):
+        user = request.user
+        class_to_attend = get_object_or_404(Class, pk=pk)
+        
+        try:
+            attendance = Attendance.objects.get(user=user, class_attended=class_to_attend)
+            status_message = f'Your attendance status for this class is {attendance.status}.'
+        except Attendance.DoesNotExist:
+            status_message = 'You have not marked attendance for this class.'
 
+        return Response({
+            'attendance_status': attendance.status if 'attendance' in locals() else 'absent',
+            'message': status_message
+        }, status=status.HTTP_200_OK)
     @transaction.atomic
     def post(self, request, pk, format=None):
         user = request.user
