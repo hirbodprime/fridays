@@ -8,5 +8,6 @@ urlpatterns = [
     path('wallet/<int:user_id>/', v.WalletAPIView.as_view(), name='wallet-detail'),
     path('payment-image/', v.PaymentImageView.as_view(), name='payment-image-upload'),
     path('upload-profile-picture/', v.UploadProfilePicture.as_view(), name='upload_profile_picture'),
+    path('users/', v.UserListView.as_view(), name='users-list'),
 
 ]

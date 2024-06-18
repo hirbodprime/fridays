@@ -1,6 +1,7 @@
-from rest_framework import status, permissions
+from rest_framework import status, permissions, serializers
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from task.models import Task
 from .serializers import TaskSerializer
 from django.shortcuts import get_object_or_404
@@ -14,15 +15,25 @@ from .serializers import TaskSerializer
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset()).distinct()
         obj = get_object_or_404(queryset, pk=self.kwargs.get('pk'))
-        print(obj)
         self.check_object_permissions(self.request, obj)
         return obj
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if request.user.is_anonymous or request.user not in instance.assigned_users.all():
+            return Response({"error": "You do not have permission to view this task."}, status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         user = request.user
+        if user.is_anonymous:
+            return Response({"error": "Authentication required."}, status=status.HTTP_401_UNAUTHORIZED)
         if not user.premium:
             return Response({"error": "Only premium users can create tasks."}, status=status.HTTP_403_FORBIDDEN)
         
@@ -37,12 +48,12 @@ class TaskViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def get_queryset(self):
         user = self.request.user
+        if user.is_anonymous:
+            return Task.objects.none()  # No tasks for anonymous users
         # Return tasks where the user is assigned or is the creator
         return Task.objects.filter(assigned_users=user) | Task.objects.filter(created_by=user)
-        # return Task.objects.filter(assigned_users=user) 
 
     def partial_update(self, request, *args, **kwargs):
         task = self.get_object()
@@ -59,3 +70,10 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         # Continue with the standard partial update if assign_all is not True
         return super(TaskViewSet, self).partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        task = self.get_object()
+        if request.user.is_anonymous or task.created_by != request.user:
+            return Response({"error": "You do not have permission to delete this task."}, status=status.HTTP_403_FORBIDDEN)
+        self.perform_destroy(task)
+        return Response(status=status.HTTP_204_NO_CONTENT)

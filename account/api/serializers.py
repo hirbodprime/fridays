@@ -2,9 +2,19 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from members.models import Wallet, PaymentImage
 from django.conf import settings
+from account.models import CustomUser
 
 
 User = get_user_model()
+
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'full_name', 'is_active', 'join_date', 'profile_image', 'premium']
+
+
 class ProfilePictureSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
     class Meta:

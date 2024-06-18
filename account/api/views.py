@@ -9,14 +9,27 @@ from django.shortcuts import get_object_or_404
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
-from account.models import InvitationCode  # Import the InvitationCode model
-from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer, PaymentImageSerializer, ProfilePictureSerializer
+from account.models import InvitationCode, CustomUser
+from .serializers import UserUpdateSerializer, UserProfileSerializer, WalletSerializer, PaymentImageSerializer, ProfilePictureSerializer,CustomUserSerializer
 from members.models import Wallet, PaymentImage
 
 
 User = get_user_model()
 
 
+class UserListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        if not request.user.premium:
+            return Response({"error": "Only premium users can access this list."}, status=403)
+        
+        users = CustomUser.objects.all()
+        serializer = CustomUserSerializer(users, many=True)
+        context = {
+            'users':serializer.data
+        }
+        return Response(context, status=200)
 class UploadProfilePicture(APIView):
     permission_classes = [IsAuthenticated]
 
