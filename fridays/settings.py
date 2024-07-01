@@ -111,7 +111,7 @@ BASE_URL = 'http://127.0.0.1:8000'  # Default value
 if HOST == 'local':
     BASE_URL = 'http://127.0.0.1:8000'
 elif HOST == 'pro':
-    BASE_URL = 'https://hirbots.com/fridays/'
+    BASE_URL = 'https://hirbots.com/fridays'
 
 
 # Internationalization
