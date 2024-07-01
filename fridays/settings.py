@@ -111,7 +111,7 @@ BASE_URL = 'http://127.0.0.1:8000'  # Default value
 if HOST == 'local':
     BASE_URL = 'http://127.0.0.1:8000'
 elif HOST == 'pro':
-    BASE_URL = 'https://hirbots.com/'
+    BASE_URL = 'https://hirbots.com/fridays/'
 
 
 # Internationalization
@@ -132,7 +132,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = '../friday_media/static/'
 
-MEDIA_URL = '/fridays/media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = '../friday_media/media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
