@@ -22,7 +22,7 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
         fields = ['profile_image']
     def get_profile_image(self, obj):
         if obj.profile_image:
-            return f"https://hirbots.com/{obj.profile_image.url}"
+            return f"https://hirbots.com/fridays{obj.profile_image.url}"
         return None
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,7 +39,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_profile_image(self, obj):
         if obj.profile_image:
-            return f"https://hirbots.com/{obj.profile_image.url}"
+            return f"https://hirbots.com/fridays{obj.profile_image.url}"
         return None
     class Meta:
         model = User
