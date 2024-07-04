@@ -10,10 +10,14 @@ User = get_user_model()
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'full_name', 'is_active', 'join_date', 'profile_image', 'premium']
-
+    def get_profile_image(self, obj):
+        if obj.profile_image:
+            return f"https://hirbots.com/fridays{obj.profile_image.url}"
+        return None
 
 class ProfilePictureSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
