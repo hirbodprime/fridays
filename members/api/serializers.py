@@ -5,10 +5,14 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    profile_image = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = ['id', 'username', 'full_name','profile_image']  # Adjust fields as needed for the user
-
+    def get_profile_image(self, obj):
+        if obj.profile_image:
+            return f"https://hirbots.com/fridays{obj.profile_image.url}"
+        return None
 # Modify the AttendanceSerializer to include user data
 class AttendanceSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Nest UserSerializer for the user field
