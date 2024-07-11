@@ -1,17 +1,34 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView,CreateAPIView
 from rest_framework import status
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, BasePermission
 import datetime
 from django.utils import timezone
 from members.models import Class, Attendance, Wallet
 # Make sure to import Wallet model if you're using it for charging/refunding
 
 from .serializers import ClassSerializer, AttendanceSerializer
+
+
+
+class IsPremiumUser(BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.premium
+
+class ClassCreateAPIView(CreateAPIView):
+    queryset = Class.objects.all()
+    serializer_class = ClassSerializer
+    permission_classes = [IsPremiumUser]
+
+    def create(self, request, *args, **kwargs):
+        if not request.user.premium:
+            return Response({"detail": "Only premium users can create classes."}, status=status.HTTP_403_FORBIDDEN)
+        return super().create(request, *args, **kwargs)
+
 class AttendedClassesListView(ListAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -36,7 +53,7 @@ class ClassHistoryListView(ListAPIView):
         Override the get_queryset method to return only the classes
         that are finished.
         """
-        return Class.objects.filter(finished=True)
+        return Class.objects.filter(finished=True).order_by('-date')
 
 class ClassViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
