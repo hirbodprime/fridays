@@ -2,9 +2,10 @@ from rest_framework import serializers
 from task.models import Task
 from account.models import CustomUser
 from account.api.serializers import UserProfileSerializer
-
 class TaskSerializer(serializers.ModelSerializer):
-    assigned_users = UserProfileSerializer(many=True, required=False)
+    assigned_users = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CustomUser.objects.all(), required=False
+    )
 
     class Meta:
         model = Task
