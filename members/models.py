@@ -18,7 +18,7 @@ class Class(models.Model):
     finished = models.BooleanField(default=False)  # New field to indicate if a class is finished
 
     def __str__(self):
-        return self.title
+        return f"{self.title} {self.id}"
 
     class Meta:
         verbose_name_plural = "classes" 

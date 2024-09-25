@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView,CreateAPIView
+from rest_framework.generics import ListAPIView,CreateAPIView,UpdateAPIView
 from rest_framework import status
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -28,6 +28,25 @@ class ClassCreateAPIView(CreateAPIView):
         if not request.user.premium:
             return Response({"detail": "Only premium users can create classes."}, status=status.HTTP_403_FORBIDDEN)
         return super().create(request, *args, **kwargs)
+
+class ClassUpdateAPIView(UpdateAPIView):
+    queryset = Class.objects.all()
+    serializer_class = ClassSerializer
+    permission_classes = [IsPremiumUser]
+    lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.premium:
+            return Response({"detail": "Only premium users can update classes."}, status=status.HTTP_403_FORBIDDEN)
+        
+        partial = kwargs.pop('partial', True)  # This allows partial updates
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
 
 class AttendedClassesListView(ListAPIView):
     permission_classes = [IsAuthenticated]
