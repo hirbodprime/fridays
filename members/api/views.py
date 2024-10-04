@@ -8,16 +8,105 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, BasePermission
 import datetime
 from django.utils import timezone
-from members.models import Class, Attendance, Wallet
+from members.models import Class, Attendance, Wallet, PaymentImage
+from account.models import CustomUser
 # Make sure to import Wallet model if you're using it for charging/refunding
+from .serializers import ClassSerializer, AttendanceSerializer,PaymentImageSerializer,UserSerializer
 
-from .serializers import ClassSerializer, AttendanceSerializer
-
+import decimal
 
 
 class IsPremiumUser(BasePermission):
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.premium
+class UpdateWalletBalanceView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        """Allow premium users to update the wallet balance of a specific user."""
+        user = request.user
+        
+        # Ensure only premium users can access this feature
+        if user.premium:
+            try:
+                # Retrieve the user for whom the wallet balance should be updated
+                target_user = CustomUser.objects.get(id=user_id)
+
+                # Retrieve the wallet for the target user, create one if it doesn't exist
+                wallet, created = Wallet.objects.get_or_create(user=target_user)
+
+                amount = request.data.get('amount')
+
+                # Check if the amount is provided (allow 0 as valid)
+                if amount is None:
+                    return Response({'error': 'A valid amount is required.'}, status=400)
+
+                # Ensure the amount is a valid decimal number
+                try:
+                    amount = decimal.Decimal(amount)
+                except decimal.InvalidOperation:
+                    return Response({'error': 'Amount must be a valid decimal number.'}, status=400)
+
+                # Change the wallet balance for the target user
+                wallet.change_fund(amount)
+
+                return Response({
+                    'success': True,
+                    'balance': wallet.balance
+                }, status=200)
+
+            except CustomUser.DoesNotExist:
+                return Response({
+                    'success': False,
+                    'error': f'User with ID {user_id} does not exist.'
+                }, status=404)
+
+            except Exception as e:
+                return Response({
+                    'success': False,
+                    'error': str(e)
+                }, status=400)
+        else:
+            return Response({
+                'success': False,
+                'error': 'Only premium users can update their wallet balance.'
+            }, status=403)
+
+
+
+class UserPaymentImageListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Return each user with their associated payment images, ordered by newest."""
+        user = request.user
+        
+        if user.premium:
+            # Get all users
+            users = CustomUser.objects.all()
+            users_data = []
+
+            # Iterate through each user and collect their payment images
+            for user in users:
+                # Order payment images by 'created_at' field (newest first)
+                payment_images = PaymentImage.objects.filter(user=user).order_by('-created_at')
+                payment_image_serializer = PaymentImageSerializer(payment_images, many=True)
+                user_serializer = UserSerializer(user)
+
+                users_data.append({
+                    'user': user_serializer.data,
+                    'payment_images': payment_image_serializer.data
+                })
+            
+            return Response({
+                'success': True,
+                'data': users_data
+            }, status=200)
+        else:
+            return Response({
+                'success': False,
+                'error': 'You must be a premium user to access payment images.'
+            }, status=403)
 
 class ClassCreateAPIView(CreateAPIView):
     queryset = Class.objects.all()

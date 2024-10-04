@@ -167,10 +167,15 @@ class UserProfileAPIView(APIView):
 
 
 
+
 class PaymentImageView(CreateAPIView):
     queryset = PaymentImage.objects.all()
     serializer_class = PaymentImageSerializer
-    permission_classes = [IsAuthenticated]  # Optional, adjust according to your security requirements
+    permission_classes = [IsAuthenticated]  # Ensures only authenticated users can upload images
+
+    def perform_create(self, serializer):
+        """Assign the user who uploads the image to the PaymentImage instance."""
+        serializer.save(user=self.request.user)
 
 class WalletAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -182,4 +187,24 @@ class WalletAPIView(APIView):
         response_data = {
             'user_data':serializer.data
         }
+        return Response(response_data, status=status.HTTP_200_OK)
+
+class UserWalletAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Return the wallet for the request sender (authenticated user)."""
+        user = request.user
+
+        # Get or create a wallet for the authenticated user
+        wallet, created = Wallet.objects.get_or_create(user=user)
+        
+        # Serialize the wallet data
+        serializer = WalletSerializer(wallet)
+        
+        # Prepare the response data
+        response_data = {
+            'wallet_data': serializer.data
+        }
+
         return Response(response_data, status=status.HTTP_200_OK)

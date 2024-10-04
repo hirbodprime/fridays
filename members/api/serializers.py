@@ -1,9 +1,12 @@
 from rest_framework import serializers
-from members.models import Class, Attendance
+from members.models import Class, Attendance,PaymentImage
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
-
+class PaymentImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentImage
+        fields = ['image', 'amount', 'created_at']
 class UserSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
     class Meta:

@@ -7,6 +7,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 import datetime
+from decimal import Decimal
 
 class Class(models.Model):
     title = models.CharField(max_length=255)
@@ -59,8 +60,14 @@ class Wallet(models.Model):
         self.balance -= amount
         self.save()
 
+    def change_fund(self, amount):
+        """Change the balance of the wallet to the provided amount."""
+        # Ensure the amount is a Decimal
+        self.balance = Decimal(amount)
+        self.save()
 
 class PaymentImage(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)  # Allow multiple images per user
     image = models.ImageField(upload_to='payment_images/')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
