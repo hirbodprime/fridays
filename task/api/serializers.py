@@ -2,11 +2,20 @@ from rest_framework import serializers
 from task.models import Task
 from account.models import CustomUser
 from account.api.serializers import UserProfileSerializer
+
+from datetime import timedelta
+from django.utils import timezone
+
+
 class TaskSerializer(serializers.ModelSerializer):
     assigned_users = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CustomUser.objects.all(), required=False
     )
-
+    deadline = serializers.DateTimeField(
+        input_formats=['%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%SZ', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d'],
+        format='%Y-%m-%dT%H:%M:%S%z',  # The format you want to output
+        required=False
+    )
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'deadline', 'created_by', 'assigned_users']

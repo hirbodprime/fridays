@@ -41,7 +41,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             task = serializer.save(created_by=user)
             # If 'assign_all' is in request, assign all users to the task
-            if request.data.get('assign_all'):
+            if request.data.get('assign_all') == True:
                 task.assigned_users.set(CustomUser.objects.all())
             task.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
