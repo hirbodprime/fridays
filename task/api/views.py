@@ -12,6 +12,19 @@ from task.models import Task
 from account.models import CustomUser
 from .serializers import TaskSerializer
 
+class UserCreatedTasksView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """Retrieve the tasks created by the authenticated user."""
+        user = request.user
+        tasks = Task.objects.filter(created_by=user)
+        serializer = TaskSerializer(tasks, many=True)
+        return Response({
+            'success': True,
+            'data': serializer.data
+        }, status=200)
+        
 class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
@@ -68,21 +81,30 @@ class TaskViewSet(viewsets.ModelViewSet):
         # Return tasks where the user is assigned or is the creator
         return Task.objects.filter(assigned_users=user)
 
-    def partial_update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
+        """
+        Override the update method to handle partial updates on PUT requests.
+        """
+        partial = kwargs.pop('partial', True)  # Allow partial updates for PUT as well as PATCH
         task = self.get_object()
-        assign_all = request.data.get('assign_all', False)
+        serializer = self.get_serializer(task, data=request.data, partial=partial)
 
-        # If assign_all is True, assign the task to all users
-        if assign_all:
-            task.assigned_users.set(CustomUser.objects.all())
-            task.save()
+        if serializer.is_valid():
+            serializer.save()
             return Response({
-                'status': 'success',
-                'message': 'Task assigned to all users.'
+                'success': True,
+                'data': serializer.data
             }, status=status.HTTP_200_OK)
+        return Response({
+            'success': False,
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Continue with the standard partial update if assign_all is not True
-        return super(TaskViewSet, self).partial_update(request, *args, **kwargs)
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Handle PATCH requests.
+        """
+        return self.update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         task = self.get_object()

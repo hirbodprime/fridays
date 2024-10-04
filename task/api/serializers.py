@@ -18,7 +18,7 @@ class TaskSerializer(serializers.ModelSerializer):
     )
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'deadline', 'created_by', 'assigned_users']
+        fields = ['id', 'title', 'description', 'deadline', 'created_by', 'assigned_users','finished']
         extra_kwargs = {
             'created_by': {'read_only': True},
         }
@@ -33,9 +33,9 @@ class TaskSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({
                     'assigned_users': 'You cannot set assigned_users when assign_all is true.'
                 })
-        elif not assigned_users:
-            # If assign_all is False, assigned_users is required.
-            raise serializers.ValidationError({
-                'assigned_users': 'This field is required.'
-            })
+        # elif not assigned_users:
+        #     # If assign_all is False, assigned_users is required.
+        #     raise serializers.ValidationError({
+        #         'assigned_users': 'This field is required.'
+        #     })
         return data

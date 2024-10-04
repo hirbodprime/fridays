@@ -8,6 +8,6 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True,blank=True,null=True)
     created_by = models.ForeignKey(CustomUser, related_name='created_tasks', on_delete=models.CASCADE)
     assigned_users = models.ManyToManyField(CustomUser, related_name='tasks',blank=True)
-
+    finished = models.BooleanField(default=False)
     def __str__(self):
         return f"{self.title}, {self.id}"
