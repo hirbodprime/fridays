@@ -171,11 +171,21 @@ class UserProfileAPIView(APIView):
 class PaymentImageView(CreateAPIView):
     queryset = PaymentImage.objects.all()
     serializer_class = PaymentImageSerializer
-    permission_classes = [IsAuthenticated]  # Ensures only authenticated users can upload images
+    permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
         """Assign the user who uploads the image to the PaymentImage instance."""
         serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, *args, **kwargs)
+        custom_domain = f"http://hirbots.com/fridays/"  # or set it to a custom domain
+        
+        # Modify the image URL in the response
+        if 'image' in response.data:
+            response.data['image'] = response.data['image'].replace("http://127.0.0.1:8000/", custom_domain)
+        
+        return response
 
 class WalletAPIView(APIView):
     permission_classes = [IsAuthenticated]
