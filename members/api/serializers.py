@@ -4,9 +4,15 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class PaymentImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     class Meta:
         model = PaymentImage
         fields = ['image', 'amount', 'created_at']
+
+    def get_image(self, obj):
+        if obj.image:
+            return f"https://hirbots.com/fridays{obj.image.url}"
+        return None
 class UserSerializer(serializers.ModelSerializer):
     profile_image = serializers.SerializerMethodField()
     class Meta:
