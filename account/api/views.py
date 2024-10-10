@@ -178,7 +178,7 @@ class PaymentImageView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        custom_domain = "https://hirbots.com/friday/"
+        custom_domain = "https://hirbots.com/fridays/"
 
         # Modify the image URL in the response for hosted environment
         if 'image' in response.data:
