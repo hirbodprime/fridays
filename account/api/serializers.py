@@ -57,6 +57,12 @@ class WalletSerializer(serializers.ModelSerializer):
         fields = ['user', 'balance']
         
 class PaymentImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
     class Meta:
         model = PaymentImage
-        fields = ['id', 'image', 'amount', 'created_at']
+        fields = ['image', 'amount', 'created_at']
+
+    def get_image(self, obj):
+        if obj.image:
+            return f"https://hirbots.com/fridays{obj.image.url}"
+        return None
