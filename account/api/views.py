@@ -174,16 +174,18 @@ class PaymentImageView(CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        """Assign the user who uploads the image to the PaymentImage instance."""
         serializer.save(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        custom_domain = f"http://hirbots.com/fridays/"  # or set it to a custom domain
-        
-        # Modify the image URL in the response
+        custom_domain = "https://hirbots.com/friday/"
+
+        # Modify the image URL in the response for hosted environment
         if 'image' in response.data:
-            response.data['image'] = response.data['image'].replace("http://127.0.0.1:8000/", custom_domain)
+            image_url = response.data['image']
+            # Check if '127.0.0.1' or the hosted URL without 'friday' is present
+            if "127.0.0.1" in image_url or "https://hirbots.com/media/" in image_url:
+                response.data['image'] = image_url.replace("http://127.0.0.1:8000/", custom_domain).replace("https://hirbots.com/media/", custom_domain + "media/")
         
         return response
 
